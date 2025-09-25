@@ -1,0 +1,19 @@
+{
+  "name": "simple-nodejs-website",
+  "version": "1.0.0",
+  "description": "一个简单的 Node.js 网站",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
