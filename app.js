@@ -3,7 +3,7 @@ const path = require('path');
 
 // 创建 Express 应用
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 33559;
 
 // 设置静态文件目录
 app.use(express.static(path.join(__dirname, 'public')));
