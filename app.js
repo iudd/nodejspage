@@ -17,6 +17,11 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: '你好，世界！' });
 });
 
+// 贪吃蛇游戏路由
+app.get('/snake', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'snake.html'));
+});
+
 // 启动服务器
 app.listen(PORT, () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);

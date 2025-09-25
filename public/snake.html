@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇游戏</title>
+    <link rel="stylesheet" href="css/snake-style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>贪吃蛇游戏</h1>
+        <div class="game-info">
+            <div class="score">分数: <span id="score">0</span></div>
+            <div class="high-score">最高分: <span id="highScore">0</span></div>
+        </div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="controls">
+            <button id="startBtn">开始游戏</button>
+            <button id="pauseBtn">暂停</button>
+            <div class="mobile-controls">
+                <button id="upBtn">↑</button>
+                <div class="horizontal-controls">
+                    <button id="leftBtn">←</button>
+                    <button id="rightBtn">→</button>
+                </div>
+                <button id="downBtn">↓</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/snake-game.js"></script>
+</body>
+</html>
