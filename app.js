@@ -1,14 +1,10 @@
 const express = require('express');
 const path = require('path');
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const { chromium } = require('playwright');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-
-// 使用Stealth插件以避免被检测为自动化工具
-puppeteer.use(StealthPlugin());
 
 // 创建 Express 应用
 const app = express();
@@ -28,6 +24,7 @@ app.use(session({
 
 // 存储浏览器实例和页面
 let browser = null;
+let context = null;
 let page = null;
 let isLoggedIn = false;
 let sessionCookies = [];
@@ -36,7 +33,7 @@ let sessionCookies = [];
 async function initBrowser() {
   if (!browser) {
     console.log('正在启动浏览器...');
-    browser = await puppeteer.launch({
+    browser = await chromium.launch({
       headless: false, // 设置为true可以在后台运行
       args: [
         '--no-sandbox',
@@ -58,24 +55,32 @@ async function getPage() {
     await initBrowser();
   }
   
-  if (!page) {
-    page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+  if (!context) {
+    context = await browser.newContext({
+      viewport: { width: 1920, height: 1080 },
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    });
     
     // 如果有保存的cookies，加载它们
     if (sessionCookies.length > 0) {
-      await page.setCookie(...sessionCookies);
+      await context.addCookies(sessionCookies);
     }
   }
+  
+  if (!page) {
+    page = await context.newPage();
+  }
+  
   return page;
 }
 
 // 关闭浏览器
 async function closeBrowser() {
   if (browser) {
+    if (context) await context.close();
     await browser.close();
     browser = null;
+    context = null;
     page = null;
     console.log('浏览器已关闭');
   }
@@ -83,8 +88,8 @@ async function closeBrowser() {
 
 // 保存cookies
 async function saveCookies() {
-  if (page) {
-    sessionCookies = await page.cookies();
+  if (context) {
+    sessionCookies = await context.cookies();
     fs.writeFileSync('cookies.json', JSON.stringify(sessionCookies));
     console.log('Cookies已保存');
   }
@@ -108,7 +113,7 @@ function loadCookies() {
 // 检查登录状态
 async function checkLoginStatus() {
   const page = await getPage();
-  await page.goto('https://nordy.ai/', { waitUntil: 'networkidle2' });
+  await page.goto('https://nordy.ai/', { waitUntil: 'networkidle' });
   
   // 检查是否有登录状态的元素
   // 注意：这里需要根据实际网站调整选择器
@@ -127,7 +132,7 @@ async function googleLogin(email, password) {
     const page = await getPage();
     
     // 访问Nordy.ai
-    await page.goto('https://nordy.ai/', { waitUntil: 'networkidle2' });
+    await page.goto('https://nordy.ai/', { waitUntil: 'networkidle' });
     
     // 点击登录按钮（需要根据实际网站调整选择器）
     await page.waitForSelector('.login-button', { timeout: 5000 });
@@ -138,20 +143,20 @@ async function googleLogin(email, password) {
     await page.click('.google-login');
     
     // 等待Google登录页面加载
-    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+    await page.waitForLoadState('networkidle');
     
     // 输入Google邮箱
-    await page.waitForSelector('input[type="email"]', { visible: true });
-    await page.type('input[type="email"]', email);
+    await page.waitForSelector('input[type="email"]', { state: 'visible' });
+    await page.fill('input[type="email"]', email);
     await page.click('#identifierNext');
     
     // 输入Google密码
-    await page.waitForSelector('input[type="password"]', { visible: true, timeout: 5000 });
-    await page.type('input[type="password"]', password);
+    await page.waitForSelector('input[type="password"]', { state: 'visible', timeout: 5000 });
+    await page.fill('input[type="password"]', password);
     await page.click('#passwordNext');
     
     // 等待重定向回Nordy.ai
-    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+    await page.waitForLoadState('networkidle');
     
     // 保存cookies
     await saveCookies();
@@ -227,7 +232,7 @@ app.post('/api/navigate', async (req, res) => {
   
   try {
     const page = await getPage();
-    await page.goto(url, { waitUntil: 'networkidle2' });
+    await page.goto(url, { waitUntil: 'networkidle' });
     
     // 获取页面内容
     const content = await page.content();
@@ -268,7 +273,7 @@ app.post('/api/type', async (req, res) => {
   try {
     const page = await getPage();
     await page.waitForSelector(selector, { timeout: 5000 });
-    await page.type(selector, text);
+    await page.fill(selector, text);
     
     res.json({ success: true, message: '输入成功' });
   } catch (error) {
@@ -292,9 +297,9 @@ app.get('/api/content', async (req, res) => {
 app.get('/api/screenshot', async (req, res) => {
   try {
     const page = await getPage();
-    const screenshot = await page.screenshot({ encoding: 'base64' });
+    const screenshot = await page.screenshot();
     
-    res.json({ success: true, screenshot: `data:image/png;base64,${screenshot}` });
+    res.json({ success: true, screenshot: `data:image/png;base64,${screenshot.toString('base64')}` });
   } catch (error) {
     res.status(500).json({ success: false, message: `截图失败: ${error.message}` });
   }

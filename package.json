@@ -9,7 +9,7 @@
   },
   "keywords": [
     "automation",
-    "puppeteer",
+    "playwright",
     "nordy.ai",
     "web-scraping",
     "api"
@@ -22,9 +22,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "puppeteer": "^21.3.8",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "playwright": "^1.40.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
