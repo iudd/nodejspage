@@ -1,19 +1,43 @@
 {
-  "name": "simple-nodejs-website",
+  "name": "nodejspage",
   "version": "1.0.0",
-  "description": "一个简单的 Node.js 网站",
+  "description": "自动化访问Nordy.ai网站并提供API接口模拟人类操作",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
-  "keywords": [],
+  "keywords": [
+    "automation",
+    "puppeteer",
+    "nordy.ai",
+    "web-scraping",
+    "api"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2"
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "puppeteer": "^21.3.8",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iudd/nodejspage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iudd/nodejspage/issues"
+  },
+  "homepage": "https://github.com/iudd/nodejspage#readme"
 }

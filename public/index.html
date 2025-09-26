@@ -3,29 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的 Node.js 网站</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Nordy.ai 自动化控制面板</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .result {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .screenshot {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .tab.active {
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            background-color: #fff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>欢迎来到我的 Node.js 网站</h1>
-        </header>
+        <h1>Nordy.ai 自动化控制面板</h1>
         
-        <main>
-            <section class="intro">
-                <h2>这是一个简单的 Node.js 网站</h2>
-                <p>这个网站使用 Express.js 框架构建，可以轻松部署到 VPS 上。</p>
-                <button id="getMessage">获取消息</button>
-                <div id="message" class="message-box"></div>
-            </section>
-        </main>
+        <div id="statusMessage" class="status"></div>
         
-        <footer>
-            <p>&copy; 2025 我的 Node.js 网站</p>
-        </footer>
+        <div class="tabs">
+            <div class="tab active" data-tab="browser">浏览器控制</div>
+            <div class="tab" data-tab="login">登录</div>
+            <div class="tab" data-tab="navigation">页面导航</div>
+            <div class="tab" data-tab="interaction">页面交互</div>
+            <div class="tab" data-tab="content">内容获取</div>
+        </div>
+        
+        <div id="browser" class="tab-content active">
+            <div class="card">
+                <h2>浏览器控制</h2>
+                <div class="button-group">
+                    <button id="initBrowser">初始化浏览器</button>
+                    <button id="closeBrowser">关闭浏览器</button>
+                    <button id="checkLogin">检查登录状态</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="login" class="tab-content">
+            <div class="card">
+                <h2>Google 登录</h2>
+                <div class="form-group">
+                    <label for="email">邮箱:</label>
+                    <input type="email" id="email" placeholder="输入Google邮箱">
+                </div>
+                <div class="form-group">
+                    <label for="password">密码:</label>
+                    <input type="password" id="password" placeholder="输入Google密码">
+                </div>
+                <button id="loginButton">登录</button>
+            </div>
+        </div>
+        
+        <div id="navigation" class="tab-content">
+            <div class="card">
+                <h2>页面导航</h2>
+                <div class="form-group">
+                    <label for="url">URL:</label>
+                    <input type="text" id="url" placeholder="输入要访问的URL" value="https://nordy.ai/">
+                </div>
+                <button id="navigateButton">访问</button>
+            </div>
+        </div>
+        
+        <div id="interaction" class="tab-content">
+            <div class="card">
+                <h2>点击元素</h2>
+                <div class="form-group">
+                    <label for="clickSelector">选择器:</label>
+                    <input type="text" id="clickSelector" placeholder="输入CSS选择器">
+                </div>
+                <button id="clickButton">点击</button>
+            </div>
+            
+            <div class="card">
+                <h2>输入文本</h2>
+                <div class="form-group">
+                    <label for="typeSelector">选择器:</label>
+                    <input type="text" id="typeSelector" placeholder="输入CSS选择器">
+                </div>
+                <div class="form-group">
+                    <label for="typeText">文本:</label>
+                    <input type="text" id="typeText" placeholder="输入要输入的文本">
+                </div>
+                <button id="typeButton">输入</button>
+            </div>
+            
+            <div class="card">
+                <h2>执行JavaScript</h2>
+                <div class="form-group">
+                    <label for="script">脚本:</label>
+                    <textarea id="script" rows="5" placeholder="输入要执行的JavaScript代码"></textarea>
+                </div>
+                <button id="evaluateButton">执行</button>
+            </div>
+        </div>
+        
+        <div id="content" class="tab-content">
+            <div class="card">
+                <h2>获取内容</h2>
+                <div class="button-group">
+                    <button id="getContentButton">获取HTML内容</button>
+                    <button id="getScreenshotButton">获取截图</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>结果</h2>
+            <div id="result" class="result">结果将显示在这里...</div>
+            <img id="screenshot" class="screenshot" style="display: none;">
+        </div>
     </div>
-    
-    <script src="js/main.js"></script>
+
+    <script>
+        // 切换标签页
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+        
+        // 显示状态消息
+        function showStatus(message, isError = false) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = 'status ' + (isError ? 'error' : 'success');
+            statusElement.style.display = 'block';
+            
+            // 5秒后自动隐藏
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 显示结果
+        function showResult(data) {
+            const resultElement = document.getElementById('result');
+            
+            if (typeof data === 'object') {
+                resultElement.textContent = JSON.stringify(data, null, 2);
+            } else {
+                resultElement.textContent = data;
+            }
+        }
+        
+        // API请求函数
+        async function apiRequest(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(`/api/${endpoint}`, options);
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus(result.message || '操作成功');
+                } else {
+                    showStatus(result.message || '操作失败', true);
+                }
+                
+                return result;
+            } catch (error) {
+                showStatus(`请求失败: ${error.message}`, true);
+                return { success: false, message: error.message };
+            }
+        }
+        
+        // 初始化浏览器
+        document.getElementById('initBrowser').addEventListener('click', async () => {
+            const result = await apiRequest('init');
+            showResult(result);
+        });
+        
+        // 关闭浏览器
+        document.getElementById('closeBrowser').addEventListener('click', async () => {
+            const result = await apiRequest('close');
+            showResult(result);
+        });
+        
+        // 检查登录状态
+        document.getElementById('checkLogin').addEventListener('click', async () => {
+            const result = await apiRequest('check-login');
+            showResult(result);
+        });
+        
+        // 登录
+        document.getElementById('loginButton').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showStatus('邮箱和密码不能为空', true);
+                return;
+            }
+            
+            const result = await apiRequest('login', 'POST', { email, password });
+            showResult(result);
+        });
+        
+        // 页面导航
+        document.getElementById('navigateButton').addEventListener('click', async () => {
+            const url = document.getElementById('url').value;
+            
+            if (!url) {
+                showStatus('URL不能为空', true);
+                return;
+            }
+            
+            const result = await apiRequest('navigate', 'POST', { url });
+            showResult(result);
+        });
+        
+        // 点击元素
+        document.getElementById('clickButton').addEventListener('click', async () => {
+            const selector = document.getElementById('clickSelector').value;
+            
+            if (!selector) {
+                showStatus('选择器不能为空', true);
+                return;
+            }
+            
+            const result = await apiRequest('click', 'POST', { selector });
+            showResult(result);
+        });
+        
+        // 输入文本
+        document.getElementById('typeButton').addEventListener('click', async () => {
+            const selector = document.getElementById('typeSelector').value;
+            const text = document.getElementById('typeText').value;
+            
+            if (!selector || !text) {
+                showStatus('选择器和文本不能为空', true);
+                return;
+            }
+            
+            const result = await apiRequest('type', 'POST', { selector, text });
+            showResult(result);
+        });
+        
+        // 执行JavaScript
+        document.getElementById('evaluateButton').addEventListener('click', async () => {
+            const script = document.getElementById('script').value;
+            
+            if (!script) {
+                showStatus('脚本不能为空', true);
+                return;
+            }
+            
+            const result = await apiRequest('evaluate', 'POST', { script });
+            showResult(result);
+        });
+        
+        // 获取HTML内容
+        document.getElementById('getContentButton').addEventListener('click', async () => {
+            const result = await apiRequest('content');
+            
+            if (result.success && result.content) {
+                showResult(result.content);
+            } else {
+                showResult(result);
+            }
+        });
+        
+        // 获取截图
+        document.getElementById('getScreenshotButton').addEventListener('click', async () => {
+            const result = await apiRequest('screenshot');
+            
+            if (result.success && result.screenshot) {
+                document.getElementById('result').style.display = 'none';
+                const screenshotElement = document.getElementById('screenshot');
+                screenshotElement.src = result.screenshot;
+                screenshotElement.style.display = 'block';
+            } else {
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('screenshot').style.display = 'none';
+                showResult(result);
+            }
+        });
+    </script>
 </body>
 </html>
