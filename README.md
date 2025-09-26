@@ -1,15 +1,13 @@
-# Nordy.ai 自动化访问工具 (nodejspage)
+# Nordy.ai 数据访问工具 (纯Node.js版)
 
-这是一个Node.js应用程序，可以自动化访问Nordy.ai网站，进行Google登录，获取网站信息，并提供API接口让外部访问来模拟人类操作。
+这是一个基于Node.js的应用程序，通过HTTP请求获取Nordy.ai网站数据，无需浏览器自动化。
 
 ## 功能特点
 
-- 自动访问Nordy.ai网站
-- 支持Google账号登录
-- 模拟人类操作（点击、输入、导航等）
-- 获取页面截图和HTML内容
-- 提供RESTful API接口
-- 直观的Web控制界面
+- 使用axios发送HTTP请求获取页面内容
+- 使用cheerio解析HTML数据
+- 提供简洁的API接口
+- 轻量级，无需浏览器依赖
 
 ## 安装
 
@@ -20,6 +18,10 @@ cd nodejspage
 
 # 安装依赖
 npm install
+
+# 配置环境变量（可选）
+cp .env.example .env
+# 在.env文件中配置必要的变量
 ```
 
 ## 使用方法
@@ -27,24 +29,51 @@ npm install
 ```bash
 # 启动应用
 node app.js
+
+# 开发模式（需安装nodemon）
+npm run dev
 ```
 
-然后在浏览器中访问 http://localhost:33559
+应用启动后访问：http://localhost:33559
 
 ## API接口
 
-应用提供了以下API接口：
+### 获取页面内容
+`GET /api/content`  
+参数：无  
+返回：页面HTML内容
 
-- `GET /api/init` - 初始化浏览器
-- `GET /api/close` - 关闭浏览器
-- `GET /api/check-login` - 检查登录状态
-- `POST /api/login` - Google登录
-- `POST /api/navigate` - 访问指定URL
-- `POST /api/click` - 点击页面元素
-- `POST /api/type` - 输入文本
-- `GET /api/content` - 获取页面HTML内容
-- `GET /api/screenshot` - 获取页面截图
-- `POST /api/evaluate` - 执行自定义JavaScript
+### 模拟登录
+`POST /api/login`  
+参数：
+```json
+{
+  "email": "您的邮箱",
+  "password": "您的密码"
+}
+```
+返回：登录结果
+
+## 配置说明
+
+在`.env`文件中可以配置以下参数：
+```
+API_BASE_URL=https://nordy.ai
+REQUEST_TIMEOUT=5000
+```
+
+## 注意事项
+
+1. 此方案无法执行JavaScript渲染的页面
+2. 如果网站有反爬机制，可能需要：
+   - 添加更多请求头
+   - 使用代理IP
+   - 实现验证码处理
+
+## 问题反馈
+
+遇到问题请提交Issue：
+https://github.com/iudd/nodejspage/issues
 
 ## 许可证
 
